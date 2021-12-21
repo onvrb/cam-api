@@ -1,0 +1,10 @@
+---
+version: '3'
+services:
+  cam-api:
+    container_name: cam-api
+    build: .
+    ports:
+      - "8000:80"
+    env_file: [.env]
+    restart: unless-stopped
