@@ -1,5 +1,7 @@
 FROM python:3.9-alpine
 
+RUN apk add --update --no-cache curl
+
 COPY root/ /
 WORKDIR /app
 
