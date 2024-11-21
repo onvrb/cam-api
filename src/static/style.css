@@ -11,3 +11,7 @@ img {
     width: 100%;
     height: auto;
 }
+
+#editRefreshRateForm {
+    display: none;
+}
