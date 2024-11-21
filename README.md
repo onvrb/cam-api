@@ -6,7 +6,6 @@ This is an implementation for a simple dashboard to get snapshots from a DVR sys
 
 - Docker
 
-
 ## Creating the `.env` file
 
 | Name                  | Type         | Description                            |
@@ -22,3 +21,7 @@ This is an implementation for a simple dashboard to get snapshots from a DVR sys
 The full path for each channel ends up being `API_ENDPOINT` + `channel`, for example `http://192.168.0.100/ISAPI/Streaming/channels/101/picture`. Additionally, if possible, you can get a higher resolution image by adding `?videoResolutionWidth=1920&videoResolutionHeight=1080` to the end of the URL, which is passed as a parameter in `API_PARAMS` (see example above).
 
 Because passing the environment variables from the `.env` is tricky, all parameters should be `str` in the `.env` as well as arguments for the script, which later on the are converted to the correct type.
+
+# Usage
+
+After the service is up and running, you can access the channel list at `http://localhost:8000/channels`.
