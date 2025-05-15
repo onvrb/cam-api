@@ -1,10 +1,8 @@
 ---
-version: '3'
 services:
   cam-api:
     container_name: cam-api
-    build: .
+    image: ghcr.io/onvrb/cam-api:master
     ports:
       - "8000:8000"
-    env_file: [.env]
     restart: unless-stopped
