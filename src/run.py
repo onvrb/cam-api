@@ -4,6 +4,34 @@ import json
 import argparse
 import requests
 from flask import Flask, send_file, render_template
+from flask_caching import Cache
+
+
+class DVR:
+    def __init__(self, args):
+        self.api_username = args.api_username
+        self.api_password = args.api_password
+        self.api_endpoint = args.api_endpoint
+        self.api_params = args.api_params
+        self.api_picture_channels = args.api_picture_channels
+
+    def get_picture(self, channel):
+        response = requests.get(f'{self.api_endpoint}/{channel}',
+                                params=self.api_params,
+                                auth=(self.api_username,self.api_password),
+                                stream=True)
+        return response.content
+
+
+def argument_parser():
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument('--api_username', type=str, default=os.getenv('API_USERNAME'))
+    arg_parser.add_argument('--api_password', type=str, default=os.getenv('API_PASSWORD'))
+    arg_parser.add_argument('--api_endpoint', type=str, default=os.getenv('API_ENDPOINT'))
+    arg_parser.add_argument('--api_params', type=str, default=os.getenv('API_PARAMS', '{}'))
+    arg_parser.add_argument('--api_picture_channels', type=str, default=os.getenv('API_PICTURE_CHANNELS'))
+    return arg_parser.parse_args()
+
 
 def validate_args_type(args):
     try:
@@ -18,34 +46,15 @@ def validate_args_type(args):
     except:
         raise ValueError('API_PARAMS must be a valid dictionary.')
 
-def argument_parser():
-    arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument('--api_username', type=str, default=os.getenv('API_USERNAME'))
-    arg_parser.add_argument('--api_password', type=str, default=os.getenv('API_PASSWORD'))
-    arg_parser.add_argument('--api_endpoint', type=str, default=os.getenv('API_ENDPOINT'))
-    arg_parser.add_argument('--api_params', type=str, default=os.getenv('API_PARAMS', '{}'))
-    arg_parser.add_argument('--api_picture_channels', type=str, default=os.getenv('API_PICTURE_CHANNELS'))
-    return arg_parser.parse_args()
-
 
 def create_app(args):
+    cache = Cache(config={'CACHE_TYPE': 'SimpleCache'})
     app = Flask(__name__)
-
-    def get_dvr_picture(args, channel):
-        response = requests.get(f'{args.api_endpoint}/{channel}',
-                                params=args.api_params,
-                                auth=(args.api_username,args.api_password),
-                                stream=True)
-        print(response)
-        picture = io.BytesIO(response.content)
-        return picture
+    cache.init_app(app)
+    dvr = DVR(args)
 
     @app.route('/')
     def home():
-        return 'DVR API'
-
-    @app.route('/channels')
-    def channels():
         body = '<a href="/view-all">View all</a><br>'
         for channel in args.api_picture_channels:
             body += f'<a class="channel" href="/{channel}">{channel}</a><br>'
@@ -56,13 +65,15 @@ def create_app(args):
         return render_template('index.j2.html', channels=args.api_picture_channels)
 
     @app.route(f'/<path:channel>')
+    @cache.cached(timeout=1)
     def channel(channel):
         if channel not in args.api_picture_channels:
             return 'Channel not found', 404
-        picture = get_dvr_picture(args, channel)
+        picture = io.BytesIO(dvr.get_picture(channel))
         return send_file(picture, mimetype='image/jpeg')
 
     return app
+
 
 def main():
     args = argument_parser()
