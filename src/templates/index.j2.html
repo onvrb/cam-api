@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <title>cam-api</title>
+    <link rel="stylesheet" href="static/style.css">
+    <link rel="icon" type="image/x-icon" href="static/favicon.ico">
+    <script type="text/javascript" src="static/script.js"></script>
+</head>
+
+<body>
+    <div style="display: flex; flex-direction: row; align-items: center;">
+        <button id="editRefreshRate" style="margin-right: 2em; height: fit-content;" onclick="showEditRefreshRate()">Refresh Rate (<span id="refreshRate">0</span>)</button>
+        <div id="editRefreshRateForm" style="display: flex; visibility: hidden;">
+            <div style="display: flex; flex-direction: column; margin-right: 1em;">
+                <label for="refreshRateInput" style="color: white;">Refresh Rate (in seconds)</label>
+                <input type="number" id="refreshRateInput" min="0" value="0">
+                <small style="color: white;">Enter 0 to stop refreshing</small>
+            </div>
+            <button id="submitRefreshRate" onclick="submitRefreshRate()">Submit</button>
+        </div>
+    </div>
+    <div id="channels" class="parent" style="margin-top: 2em;">
+        {% for channel in channels %}
+        <img id="{{ channel }}" class="channel" src="{{ channel }}" alt="{{ channel }}" />
+        {% endfor %}
+    </div>
+
+</body>
+</html>
