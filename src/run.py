@@ -5,7 +5,9 @@ import argparse
 import requests
 from flask import Flask, send_file, render_template
 from flask_caching import Cache
-
+import logging
+log = logging.getLogger('werkzeug')
+log.disabled = True
 
 class DVR:
     def __init__(self, args):
@@ -48,8 +50,8 @@ def validate_args_type(args):
 
 
 def create_app(args):
-    cache = Cache(config={'CACHE_TYPE': 'SimpleCache'})
     app = Flask(__name__)
+    cache = Cache(config={'CACHE_TYPE': 'SimpleCache'})
     cache.init_app(app)
     dvr = DVR(args)
 
